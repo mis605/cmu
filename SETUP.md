@@ -1,142 +1,70 @@
-# SETUP — CMU GitHub Pages + GAS
-**GOS Indoraya | Google Apps Script + Google Sheets + GitHub Pages**
+# Setup Deployment ke GitHub Pages & Google Apps Script (GAS)
+Dokumen ini menjelaskan langkah demi langkah untuk memigrasikan CMU form ke **GitHub Pages (Frontend)** dan **Google Apps Script (Backend/API)**.
 
 ---
 
-## Gambaran Arsitektur
+## Tahap 1: Setup Backend Google Apps Script (GAS)
 
-```
-GitHub Pages                 Google Apps Script
-(index/cek/admin.html)  →  doGet / doPost (cmu_api.gs)
-(config.js + api.js)    ←  JSON response
-                              ↕
-                         Google Sheets (database)
-                         Google Drive (lampiran)
-```
+1. Buka [Google Apps Script Editor](https://script.google.com).
+2. Buat project baru, beri nama **API CMU**.
+3. Buka file `cmu_api.gs` yang ada di lokal Anda, **salin semua isi codenya**, lalu *paste* ke dalam Script Editor Google.
+4. Di baris awal Code, ubah variabel berikut:
+   ```javascript
+   const SHEET_ID = 'MASUKKAN_ID_SPREADSHEET_ANDA_DI_SINI';
+   // Contoh: '1BxX...Hn2k'
+   ```
+5. *(Opsional)* Jika ingin mengatur folder Google Drive khusus untuk unggahan file, klik icon **Project Settings (Roda Gigi)** di sebelah kiri, *Scroll* ke bagian **Script Properties**, klik **Add script property**, masukkan:
+   - **Property**: `GDRIVE_FOLDER_ID`
+   - **Value**: Masukkan Folder ID Google Drive anda.
+6. Sama seperti di atas, tambahkan password untuk admin:
+   - **Property**: `ADMIN_PASSWORD`
+   - **Value**: `adminrahasia123` *(contoh)*
 
----
-
-## Bagian 1 — Persiapkan Google Sheet
-
-Buat Google Sheet baru dengan **1 tab** bernama `Keluhan` (A–S):
-
-| Kol | Header | Kol | Header |
-|-----|--------|-----|--------|
-| A | ID Tiket | K | Deskripsi |
-| B | Tanggal Submit | L | Prioritas |
-| C | NRK / NIK | M | Status |
-| D | Nama Pelapor | N | PIC Nama |
-| E | Nama Klien / Penempatan | O | Tanggal Proses |
-| F | Jabatan | P | Tanggal Selesai |
-| G | No HP / WhatsApp | Q | SLA (Hari) |
-| H | Email Aktif | R | Catatan Admin |
-| I | Kategori | S | File GDrive URL |
-| J | Sub Kategori | | |
-
-**Formula SLA di kolom Q2** (drag ke bawah):
-```
-=IFERROR(IF(P2<>"",INT(P2-O2),IF(O2<>"",INT(TODAY()-O2),"")),"")
-```
-
-**Format kolom B, O, P** → Date time
+### Deploy sebagai Web App
+1. Di kanan atas, klik tombol biru **Deploy** > **New Deployment**.
+2. Pilih tipe: **Web app**.
+3. **Execute as**: `Me` (Penting! Agar file dan datanya masuk ke akun Anda).
+4. **Who has access**: `Anyone` (Penting! Harus anyone karena Public API).
+5. Klik **Deploy** dan berikan otorisasi izin akun.
+6. Salin **URL Web App** yang di-generate. (Bentuknya seperti: `https://script.google.com/macros/s/.../exec`)
 
 ---
 
-## Bagian 2 — Setup Google Apps Script
+## Tahap 2: Setup Frontend (Repository Github)
 
-### 2.1 Buat Project GAS Baru
-1. Buka [script.google.com](https://script.google.com) → **New Project**
-2. Rename project: `CMU GOS Indoraya`
-
-### 2.2 Upload File GAS
-Copy-paste file berikut ke editor GAS:
-
-| File | Nama di Editor GAS |
-|------|--------------------|
-| `cmu.gs` | `Code` (ganti isi default) |
-| `cmu_api.gs` | Klik `+` → Script → nama: `cmu_api` |
-| `appsscript.json` | Project Settings → centang "Show appsscript.json" → paste isi file |
-
-### 2.3 Konfigurasi cmu.gs
-Buka `Code.gs`, ganti:
-```javascript
-const SHEET_ID = 'GANTI_DENGAN_ID_GSHEET';
-```
-**Cara cari ID GSheet**: dari URL → `docs.google.com/spreadsheets/d/**[ID INI]**/edit`
-
-### 2.4 Set Script Properties
-**Extensions → Apps Script → Project Settings → Script Properties → Add property:**
-
-| Property | Value |
-|----------|-------|
-| `ADMIN_PASSWORD` | Password pilihan Anda (default: `admin123`) |
-| `GDRIVE_FOLDER_ID` | ID folder GDrive untuk lampiran *(opsional)* |
-
-### 2.5 Deploy sebagai Web App
-1. **Deploy → New deployment → Web App**
-2. Konfigurasi:
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-3. Klik **Deploy → Authorize** jika diminta
-4. **Copy URL** deployment (format: `https://script.google.com/macros/s/.../exec`)
+1. Pastikan folder Project lokal Anda ini sudah berisikan:
+   - `index.html`
+   - `cek.html`
+   - `admin.html`
+   - `config.js` (dan/atau `config.example.js`)
+2. Buka `config.js` dan **Tempelkan URL Web App GAS Anda**:
+   ```javascript
+   const CMU_CONFIG = {
+       GAS_URL: 'https://script.google.com/macros/s/AKfyc...Qgjpd/exec'
+   };
+   ```
+3. Commit dan push proyek ini ke GitHub Repository Anda (gratis).
 
 ---
 
-## Bagian 3 — Setup GitHub Pages
+## Tahap 3: Aktifkan GitHub Pages
 
-### 3.1 Buat Repository GitHub
-1. Login ke [github.com](https://github.com)
-2. **New repository** → nama: `cmu` (atau sesuai keinginan)
-3. Visibility: **Public** (wajib untuk GitHub Pages gratis)
-
-### 3.2 Upload File Frontend
-Upload file-file berikut ke repository:
-```
-index.html
-cek.html
-admin.html
-config.js      ← WAJIB diisi dulu (lihat 3.3)
-api.js
-README.md
-```
-> File GAS (`cmu.gs`, `cmu_api.gs`, `appsscript.json`) **tidak perlu** di-upload ke GitHub.
-
-### 3.3 Isi config.js
-Edit file `config.js`, ganti URL dengan hasil deployment GAS:
-```javascript
-const CMU_CONFIG = {
-  apiUrl: 'https://script.google.com/macros/s/DEPLOYMENT_ID_ANDA/exec'
-};
-```
-
-### 3.4 Aktifkan GitHub Pages
-1. Di repository → **Settings → Pages**
-2. Source: **Deploy from a branch**
-3. Branch: **main** → folder: **/ (root)**
-4. Klik **Save**
-5. GitHub akan memberikan URL: `https://[username].github.io/[repo-name]/`
-
----
-
-## Bagian 4 — URL Akses
-
-| Halaman | URL |
-|---------|-----|
-| Form Karyawan | `https://[username].github.io/[repo]/` |
-| Cek Status | `https://[username].github.io/[repo]/cek.html` |
-| Admin Panel | `https://[username].github.io/[repo]/admin.html` |
-
-> URL Admin sebaiknya **tidak dipublikasikan** ke karyawan.
+1. Buka repository GitHub Anda dari Browser.
+2. Ke tab **Settings** -> pilih menu **Pages** (di sidebar kiri).
+3. Pada opsi **Build and deployment**:
+   - Source: `Deploy from a branch`
+   - Branch: Pilih cabang `main` atau `master` dan folder `/ (root)`.
+4. Klik **Save**.
+5. Tunggu 1–2 menit, GitHub akan menampilkan pesan: *"Your site is live at https://[username].github.io/[namarepo]/"*
+6. Selesai! Web Anda kini bisa diakses dari link GitHub Pages di atas.
 
 ---
 
 ## Troubleshooting
 
-| Masalah | Solusi |
-|---------|--------|
-| Halaman loading tapi tidak ada data | Cek `apiUrl` di `config.js` sudah benar |
-| Admin tidak bisa login | Cek Script Properties `ADMIN_PASSWORD` sudah di-set |
-| "Gagal terhubung ke server" | Re-deploy GAS sebagai New Deployment (bukan Manage Deployments) |
-| File lampiran gagal upload | Cek scope `drive` ada di `appsscript.json`, re-authorize GAS |
-| GitHub Pages belum aktif | Tunggu 1–2 menit setelah enable, atau hard refresh browser |
-| CORS error di browser console | Pastikan deploy GAS dengan access: "Anyone", bukan "Anyone with Google Account" |
+- **Admin.html loading terus dan tidak muncul tabel?**
+  Pastikan Sheet GSheet benar-benar ada data Header, dan URL di `config.js` valid serta CORS dari AppScript (doPost) berjalan lancar. Cek `Inspect Element > Console` (F12) untuk melihat error spesifik.
+- **Upload File Error?**
+  Pastikan Anda telah memberi otorisasi yang benar di deployment GAS, dan GDRIVE_FOLDER_ID sesuai (jika dikonfigurasi). 
+- **Terpaksa membuat perubahan Apps Script (`cmu_api.gs`)?**
+  Setelah save, jangan lupa klik **Deploy > Manage Deployments > Edit (Pencil) > Version: New > Deploy** agar perubahan ter-update untuk publik! (Jika tidak New Version, script lama yang diakses oleh frontend).

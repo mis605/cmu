@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMU - Admin Panel | GOS Indoraya</title>
+    <script src="config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <script src="config.js"></script>
-    <script src="api.js"></script>
     <style>
         *,
         *::before,
@@ -41,7 +40,7 @@
             min-height: 100vh;
         }
 
-        /* LOGIN */
+        /* ────────── LOGIN ────────── */
         #loginScreen {
             display: flex;
             align-items: center;
@@ -125,11 +124,6 @@
             background: linear-gradient(135deg, #a371f7, #8957e5);
         }
 
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         .login-error {
             color: #f85149;
             font-size: 13px;
@@ -137,9 +131,10 @@
             display: none;
         }
 
-        /* MAIN APP */
+        /* ────────── APP ────────── */
         #mainApp {
             display: none;
+            padding: 0;
         }
 
         .topbar {
@@ -201,7 +196,6 @@
             border: 1px solid var(--border);
             background: var(--bg3);
             color: var(--text);
-            text-decoration: none;
         }
 
         .btn-sm:hover {
@@ -229,7 +223,6 @@
             margin: 0 auto;
         }
 
-        /* Summary */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -279,7 +272,6 @@
             border-top: 3px solid var(--red);
         }
 
-        /* Filter */
         .filter-bar {
             background: var(--bg2);
             border: 1px solid var(--border);
@@ -332,7 +324,6 @@
             background: #a371f7;
         }
 
-        /* Table */
         .table-wrapper {
             background: var(--bg2);
             border: 1px solid var(--border);
@@ -342,6 +333,8 @@
 
         .table-scroll {
             overflow-x: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 300px);
         }
 
         table {
@@ -352,6 +345,9 @@
 
         thead {
             background: var(--bg3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         th {
@@ -499,9 +495,12 @@
             flex-wrap: wrap;
         }
 
-        /* Row expand */
         .row-expand {
             background: var(--bg3) !important;
+        }
+
+        .row-expand td {
+            padding: 0;
         }
 
         .expand-inner {
@@ -550,7 +549,7 @@
             }
         }
 
-        /* Modal */
+        /* ────────── MODAL ────────── */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -659,11 +658,6 @@
             color: #fff;
         }
 
-        .btn-confirm:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         .btn-blue {
             background: var(--blue);
         }
@@ -688,7 +682,6 @@
             background: #f85149;
         }
 
-        /* Toast */
         #toast {
             position: fixed;
             bottom: 28px;
@@ -753,12 +746,17 @@
                 padding: 12px 16px;
             }
         }
+
+        @media (max-width: 480px) {
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- LOGIN -->
     <div id="loginScreen">
         <div class="login-card">
             <div class="login-icon">🛡️</div>
@@ -767,11 +765,10 @@
             <input type="password" class="login-input" id="adminPass" placeholder="Password Admin"
                 onkeydown="if(event.key==='Enter') doLogin()">
             <button class="btn-login" id="btnLogin" onclick="doLogin()">Masuk</button>
-            <div class="login-error" id="loginErr">❌ Password salah. Coba lagi.</div>
+            <div class="login-error" id="loginErr">❌ Password salah atau Gagal Terhubung. Coba lagi.</div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
     <div id="mainApp">
         <div class="topbar">
             <div class="brand">
@@ -782,8 +779,8 @@
                 </div>
             </div>
             <div class="topbar-right">
-                <span class="conn-status" id="connStatus"><span class="conn-dot"></span>Connected</span>
-                <a class="btn-sm" href="index.html">🏠 Employee Portal</a>
+                <span class="conn-status"><span class="conn-dot"></span>Connected</span>
+                <button class="btn-sm" onclick="window.location.href='index.html'">🏠 Employee Portal</button>
                 <button class="btn-sm" onclick="doLogout()">Log out</button>
             </div>
         </div>
@@ -821,8 +818,7 @@
             </div>
 
             <div class="filter-bar">
-                <input type="text" id="searchText" placeholder="🔍 Cari ID, nama, klien, sub kategori..."
-                    oninput="applyFilter()">
+                <input type="text" id="searchText" placeholder="🔍 Cari ID, nama, klien..." oninput="applyFilter()">
                 <select id="filterStatus" onchange="applyFilter()">
                     <option value="">Semua Status</option>
                     <option value="Open">Open</option>
@@ -848,7 +844,7 @@
                                 <th>ID Tiket</th>
                                 <th>Tgl Submit</th>
                                 <th>NRK/NIK</th>
-                                <th>Nama &amp; Klien</th>
+                                <th>Nama & Klien</th>
                                 <th>Kategori / Sub</th>
                                 <th>Prioritas</th>
                                 <th>Status</th>
@@ -859,7 +855,7 @@
                         </thead>
                         <tbody id="tableBody">
                             <tr class="loading-row">
-                                <td colspan="11"><span class="spinner"></span>Menunggu login...</td>
+                                <td colspan="11"><span class="spinner"></span>Memuat data...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -868,7 +864,7 @@
         </div>
     </div>
 
-    <!-- MODAL PROSES -->
+    <!-- Modals -->
     <div class="modal-overlay" id="modalProses">
         <div class="modal-box">
             <div class="modal-title">⚙️ Proses Pengajuan</div>
@@ -885,287 +881,241 @@
             <label class="modal-label">Catatan (opsional)</label>
             <textarea class="modal-textarea" id="mProsesCatatan"
                 placeholder="Tindakan awal, estimasi, dll..."></textarea>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal('modalProses')">Batal</button>
-                <button class="btn-confirm btn-blue" id="btnKonfirmasiProses" onclick="konfirmasiProses()">Simpan &amp;
-                    Proses</button>
-            </div>
+            <div class="modal-actions"><button class="btn-cancel"
+                    onclick="closeModal('modalProses')">Batal</button><button class="btn-confirm btn-blue"
+                    onclick="konfirmasiProses()" id="btnSaveProses">Simpan & Proses</button></div>
         </div>
     </div>
 
-    <!-- MODAL SELESAI -->
     <div class="modal-overlay" id="modalSelesai">
         <div class="modal-box">
             <div class="modal-title">✅ Tutup Keluhan</div>
             <div class="modal-sub" id="mSelesaiId"></div>
             <label class="modal-label">Catatan Resolusi</label>
-            <textarea class="modal-textarea" id="mSelesaiCatatan"
-                placeholder="Jelaskan apa yang sudah dilakukan..."></textarea>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal('modalSelesai')">Batal</button>
-                <button class="btn-confirm btn-green" id="btnKonfirmasiSelesai" onclick="konfirmasiSelesai()">Konfirmasi
-                    Selesai</button>
-            </div>
+            <textarea class="modal-textarea" id="mSelesaiCatatan" placeholder="Jelaskan penyelesaian..."></textarea>
+            <div class="modal-actions"><button class="btn-cancel"
+                    onclick="closeModal('modalSelesai')">Batal</button><button class="btn-confirm btn-green"
+                    onclick="konfirmasiSelesai()" id="btnSaveSelesai">Konfirmasi Selesai</button></div>
         </div>
     </div>
 
-    <!-- MODAL REJECT -->
     <div class="modal-overlay" id="modalReject">
         <div class="modal-box">
             <div class="modal-title">❌ Tolak Keluhan</div>
             <div class="modal-sub" id="mRejectId"></div>
             <label class="modal-label">Alasan penolakan</label>
-            <textarea class="modal-textarea" id="mRejectCatatan" placeholder="Berikan alasan penolakan..."></textarea>
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal('modalReject')">Batal</button>
-                <button class="btn-confirm btn-danger" id="btnKonfirmasiReject" onclick="konfirmasiReject()">Tolak
-                    Keluhan</button>
-            </div>
+            <textarea class="modal-textarea" id="mRejectCatatan" placeholder="Berikan alasan..."></textarea>
+            <div class="modal-actions"><button class="btn-cancel"
+                    onclick="closeModal('modalReject')">Batal</button><button class="btn-confirm btn-danger"
+                    onclick="konfirmasiReject()" id="btnSaveReject">Tolak Keluhan</button></div>
         </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
+        // API Helper
+        async function callAPI(action, payload = {}) {
+            const res = await fetch(CMU_CONFIG.GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action, ...payload }),
+                redirect: 'follow'
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
         let allData = [];
         let activeTicketId = '';
 
-        // ── Login ──────────────────────────────────────────────────────────
         async function doLogin() {
             const pass = document.getElementById('adminPass').value;
             if (!pass) return;
             const btn = document.getElementById('btnLogin');
-            btn.disabled = true; btn.textContent = '⏳ Memverifikasi...';
+            btn.textContent = 'Memverifikasi...'; btn.disabled = true;
             try {
-                const res = await API.verifyAdmin(pass);
-                if (res && res.success) {
+                const res = await callAPI('verifyAdmin', { password: pass });
+                if (res.success && res.ok && res.token) {
+                    localStorage.setItem('cmu_admin_token', res.token);
                     startApp();
-                } else {
-                    showLoginError();
                 }
-            } catch (err) {
-                showLoginError('Tidak dapat terhubung ke server.');
-            } finally {
-                btn.disabled = false; btn.textContent = 'Masuk';
-            }
+                else { showLoginError(); }
+            } catch (e) { showLoginError(); }
+            btn.textContent = 'Masuk'; btn.disabled = false;
         }
 
-        function showLoginError(msg) {
+        function showLoginError() {
             const el = document.getElementById('loginErr');
-            el.textContent = '❌ ' + (msg || 'Password salah. Coba lagi.');
-            el.style.display = 'block';
-            setTimeout(() => el.style.display = 'none', 3500);
+            el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3000);
         }
 
         function startApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             fetchData();
-            loadPicList();
         }
 
         function doLogout() {
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
             document.getElementById('adminPass').value = '';
+            localStorage.removeItem('cmu_admin_token');
             allData = [];
         }
 
-        // ── Data ──────────────────────────────────────────────────────────
         async function fetchData() {
-            document.getElementById('tableBody').innerHTML =
-                '<tr class="loading-row"><td colspan="11"><span class="spinner"></span>Memuat data...</td></tr>';
-            document.getElementById('connStatus').innerHTML = '<span class="conn-dot" style="background:#d29922;box-shadow:0 0 6px #d29922"></span>Loading...';
+            document.getElementById('tableBody').innerHTML = '<tr class="loading-row"><td colspan="11"><span class="spinner"></span>Memuat data...</td></tr>';
             try {
-                allData = await API.getKeluhanList() || [];
-                renderTable();
-                updateSummary();
-                document.getElementById('connStatus').innerHTML = '<span class="conn-dot"></span>Connected';
-            } catch (err) {
-                document.getElementById('tableBody').innerHTML =
-                    `<tr class="empty-row"><td colspan="11">⚠ Gagal memuat data: ${err.message}</td></tr>`;
-                document.getElementById('connStatus').innerHTML = '<span class="conn-dot" style="background:#da3633;box-shadow:0 0 6px #da3633"></span>Error';
+                const res = await callAPI('getKeluhanList');
+                allData = res || [];
+                renderTable(); updateSummary();
+            } catch (e) {
+                showToast('Gagal ambil data: ' + e.message, 'err');
+                document.getElementById('tableBody').innerHTML = '<tr class="empty-row"><td colspan="11">Gagal memuat data</td></tr>';
             }
-        }
-
-        async function loadPicList() {
+            // Fetch PIC List if any
             try {
-                const list = await API.getPicList() || [];
-                const dl = document.getElementById('picSuggestions');
-                list.forEach(name => { const opt = document.createElement('option'); opt.value = name; dl.appendChild(opt); });
-            } catch (_) { }
+                const picRes = await callAPI('getPicList');
+                if (picRes.success && picRes.list) {
+                    const dl = document.getElementById('picSuggestions');
+                    dl.innerHTML = '';
+                    picRes.list.forEach(name => { const opt = document.createElement('option'); opt.value = name; dl.appendChild(opt); });
+                }
+            } catch (e) { }
         }
 
-        // ── Summary ────────────────────────────────────────────────────────
         function updateSummary() {
             let open = 0, prog = 0, closed = 0, over = 0;
             allData.forEach(t => {
                 const s = (t.status || '').toLowerCase();
-                if (s === 'open') open++;
-                else if (s === 'in progress') prog++;
-                else if (s === 'closed') closed++;
-                if ((s === 'open' || s === 'in progress') && parseInt(t.sla) > 3) over++;
+                if (s === 'open') open++; else if (s === 'in progress') prog++; else if (s === 'closed') closed++;
+                if ((s === 'open' || s === 'in progress') && t.sla !== '' && parseInt(t.sla) > 3) over++;
             });
-            document.getElementById('sOpen').textContent = open;
-            document.getElementById('sProg').textContent = prog;
-            document.getElementById('sClosed').textContent = closed;
-            document.getElementById('sOver').textContent = over;
+            document.getElementById('sOpen').textContent = open; document.getElementById('sProg').textContent = prog;
+            document.getElementById('sClosed').textContent = closed; document.getElementById('sOver').textContent = over;
         }
 
-        // ── Table ──────────────────────────────────────────────────────────
         function renderTable() {
             const search = (document.getElementById('searchText').value || '').toLowerCase();
             const fStatus = document.getElementById('filterStatus').value;
             const fKat = document.getElementById('filterKategori').value;
 
             const filtered = allData.filter(t => {
-                const match = !search || (t.id + t.nrkNik + t.nama + t.klien + t.kategori + t.subKategori + t.picNama).toLowerCase().includes(search);
-                return match && (!fStatus || t.status === fStatus) && (!fKat || t.kategori === fKat);
+                const match = !search || (t.id + t.nrkNik + t.nama + t.klien + t.deskripsi + t.kategori + t.subKategori + t.picNama).toLowerCase().includes(search);
+                const matchS = !fStatus || t.status === fStatus;
+                const matchK = !fKat || t.kategori === fKat;
+                return match && matchS && matchK;
             });
 
             const body = document.getElementById('tableBody');
-            if (!filtered.length) {
-                body.innerHTML = '<tr class="empty-row"><td colspan="11">📭 Tidak ada data yang sesuai filter.</td></tr>';
-                return;
-            }
+            if (filtered.length === 0) { body.innerHTML = '<tr class="empty-row"><td colspan="11">📭 Tidak ada data yang sesuai filter.</td></tr>'; return; }
 
             body.innerHTML = filtered.map((t, i) => {
-                const statusCls = { 'open': 'chip-open', 'in progress': 'chip-progress', 'closed': 'chip-closed', 'rejected': 'chip-rejected' }[(t.status || '').toLowerCase()] || 'chip-open';
+                const statusCls = { 'open': 'chip-open', 'in progress': 'chip-progress', 'closed': 'chip-closed', 'rejected': 'chip-rejected' }[(t.status || 'open').toLowerCase()] || 'chip-open';
                 const priCls = { 'Low': 'chip-rendah', 'Middle': 'chip-sedang', 'High': 'chip-tinggi' }[t.prioritas] || '';
+                const priLabel = t.prioritas || '—';
 
                 let slaHtml = '<span class="sla-na">—</span>';
-                if (t.sla !== '' && t.sla !== null && t.sla !== undefined) {
+                if (t.sla !== '') {
                     const d = parseInt(t.sla);
-                    const cls = t.status === 'Closed' ? (d <= 3 ? 'sla-ok' : 'sla-danger') : (d <= 3 ? 'sla-ok' : d <= 5 ? 'sla-warn' : 'sla-danger');
+                    const isClosed = t.status === 'Closed';
+                    const cls = isClosed ? (d <= 3 ? 'sla-ok' : 'sla-danger') : (d <= 3 ? 'sla-ok' : d <= 5 ? 'sla-warn' : 'sla-danger');
                     slaHtml = `<span class="sla-num ${cls}">${d}</span>`;
                 }
 
                 const s = (t.status || '').toLowerCase();
-                const canProses = s === 'open';
-                const canSelesai = s === 'in progress';
-                const canReject = s === 'open' || s === 'in progress';
-                const id = escId(t.id);
+                const canProses = s === 'open'; const canSelesai = s === 'in progress'; const canReject = s === 'open' || s === 'in progress';
 
                 return `
-        <tr onclick="toggleDetail('${id}')" style="cursor:pointer">
-          <td class="nowrap" style="color:var(--muted);font-size:11px">${i + 1}</td>
-          <td class="nowrap"><span style="font-family:monospace;font-size:12px;font-weight:700;color:#58a6ff">${t.id}</span></td>
-          <td class="nowrap" style="color:var(--muted);font-size:12px">${t.tglSubmit}</td>
-          <td class="nowrap"><span style="font-family:monospace;font-size:12px">${t.nrkNik}</span></td>
-          <td>
-            <div style="font-weight:600">${escHtml(t.nama)}</div>
-            <div style="font-size:11px;color:var(--muted)">${escHtml(t.klien)}</div>
-          </td>
-          <td>
-            <div style="font-size:12px;font-weight:600">${escHtml(t.kategori)}</div>
-            <div style="font-size:11px;color:var(--muted);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis" title="${escHtml(t.subKategori)}">${escHtml(t.subKategori)}</div>
-          </td>
-          <td>${t.prioritas ? `<span class="chip ${priCls}">${t.prioritas}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
-          <td><span class="chip ${statusCls}">${t.status || 'Open'}</span></td>
-          <td style="font-size:12px">${t.picNama ? escHtml(t.picNama) : '<span style="color:var(--muted)">—</span>'}</td>
-          <td class="nowrap">${slaHtml}</td>
-          <td class="nowrap" onclick="event.stopPropagation()">
-            <div class="act-col">
-              ${canProses ? `<button class="btn-action btn-proses"  onclick="openProses('${t.id}')">Proses</button>` : ''}
-              ${canSelesai ? `<button class="btn-action btn-selesai" onclick="openSelesai('${t.id}')">Selesai</button>` : ''}
-              ${canReject ? `<button class="btn-action btn-reject"  onclick="openReject('${t.id}')">Tolak</button>` : ''}
-              ${(!canProses && !canSelesai && !canReject) ? '<span style="color:var(--muted);font-size:12px">—</span>' : ''}
-            </div>
-          </td>
-        </tr>
-        <tr class="row-expand" id="detail-${id}" style="display:none">
-          <td colspan="11">
-            <div class="expand-inner">
-              <div class="expand-label">Uraian / Deskripsi</div>
-              <div class="expand-val">${escHtml(t.deskripsi)}</div>
-              ${t.jabatan ? `<div class="expand-label" style="margin-top:10px">Jabatan</div><div class="expand-val">${escHtml(t.jabatan)}</div>` : ''}
-              ${t.email ? `<div class="expand-label" style="margin-top:10px">Email Aktif</div><div class="expand-val">${escHtml(t.email)}</div>` : ''}
-              ${t.nohp ? `<div class="expand-label" style="margin-top:10px">No HP / WhatsApp</div><div class="expand-val">${escHtml(t.nohp)}</div>` : ''}
-              ${t.tglProses ? `<div class="expand-label" style="margin-top:10px">Tanggal Diproses</div><div class="expand-val">${t.tglProses}</div>` : ''}
-              ${t.tglSelesai ? `<div class="expand-label" style="margin-top:10px">Tanggal Selesai</div><div class="expand-val">${t.tglSelesai}</div>` : ''}
-              ${t.catatan ? `<div class="expand-label" style="margin-top:10px">Catatan Admin</div><div class="expand-val">${escHtml(t.catatan)}</div>` : ''}
-              ${t.fileUrl ? `<div class="expand-label" style="margin-top:10px">Lampiran</div><div class="expand-val"><a href="${t.fileUrl}" target="_blank" style="color:#58a6ff">📎 Buka di Google Drive</a></div>` : ''}
-            </div>
-          </td>
-        </tr>`;
+                <tr id="row-${escId(t.id)}" onclick="toggleDetail('${escId(t.id)}')" style="cursor:pointer">
+                  <td class="nowrap" style="color:var(--muted);font-size:11px">${i + 1}</td>
+                  <td class="nowrap"><span style="font-family:monospace;font-size:12px;font-weight:700;color:#58a6ff">${t.id}</span></td>
+                  <td class="nowrap" style="color:var(--muted);font-size:12px">${t.tglSubmit}</td>
+                  <td class="nowrap"><span style="font-family:monospace;font-size:12px">${t.nrkNik}</span></td>
+                  <td><div style="font-weight:600">${escHtml(t.nama)}</div><div style="font-size:11px;color:var(--muted)">${escHtml(t.klien)}</div></td>
+                  <td><div style="font-size:12px;font-weight:600">${escHtml(t.kategori)}</div><div style="font-size:11px;color:var(--muted);white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis" title="${escHtml(t.subKategori)}">${escHtml(t.subKategori)}</div></td>
+                  <td>${t.prioritas ? `<span class="chip ${priCls}">${priLabel}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+                  <td><span class="chip ${statusCls}">${t.status}</span></td>
+                  <td style="font-size:12px">${t.picNama ? escHtml(t.picNama) : '<span style="color:var(--muted)">—</span>'}</td>
+                  <td class="nowrap">${slaHtml}</td>
+                  <td class="nowrap" onclick="event.stopPropagation()">
+                    <div class="act-col">
+                      ${canProses ? `<button class="btn-action btn-proses" onclick="openProses('${t.id}')">Proses</button>` : ''}
+                      ${canSelesai ? `<button class="btn-action btn-selesai" onclick="openSelesai('${t.id}')">Selesai</button>` : ''}
+                      ${canReject ? `<button class="btn-action btn-reject" onclick="openReject('${t.id}')">Tolak</button>` : ''}
+                      ${(!canProses && !canSelesai && !canReject) ? `<span style="color:var(--muted);font-size:12px">—</span>` : ''}
+                    </div>
+                  </td>
+                </tr>
+                <tr class="row-expand" id="detail-${escId(t.id)}" style="display:none"><td colspan="11">
+                  <div class="expand-inner">
+                    <div class="expand-label">Uraian / Deskripsi</div><div class="expand-val">${escHtml(t.deskripsi)}</div>
+                    ${t.jabatan ? `<div class="expand-label" style="margin-top:10px">Jabatan</div><div class="expand-val">${escHtml(t.jabatan)}</div>` : ''}
+                    ${t.email ? `<div class="expand-label" style="margin-top:10px">Email Aktif</div><div class="expand-val">${escHtml(t.email)}</div>` : ''}
+                    ${t.nohp ? `<div class="expand-label" style="margin-top:10px">No HP / WhatsApp</div><div class="expand-val">${escHtml(t.nohp)}</div>` : ''}
+                    ${t.tglProses ? `<div class="expand-label" style="margin-top:10px">Tanggal Diproses</div><div class="expand-val">${t.tglProses}</div>` : ''}
+                    ${t.tglSelesai ? `<div class="expand-label" style="margin-top:10px">Tanggal Selesai</div><div class="expand-val">${t.tglSelesai}</div>` : ''}
+                    ${t.catatan ? `<div class="expand-label" style="margin-top:10px">Catatan Admin</div><div class="expand-val">${escHtml(t.catatan)}</div>` : ''}
+                    ${t.fileUrl ? `<div class="expand-label" style="margin-top:10px">Lampiran Dokumen</div><div class="expand-val"><a href="${t.fileUrl}" target="_blank" style="color:#58a6ff">📎 Buka di Google Drive</a></div>` : ''}
+                  </div>
+                </td></tr>`;
             }).join('');
         }
 
-        function toggleDetail(id) {
-            const el = document.getElementById('detail-' + id);
-            if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
-        }
-
+        function toggleDetail(id) { const el = document.getElementById('detail-' + id); if (el) el.style.display = el.style.display === 'none' ? '' : 'none'; }
         function applyFilter() { renderTable(); }
 
-        // ── Modals ─────────────────────────────────────────────────────────
         function openProses(id) {
-            activeTicketId = id;
-            document.getElementById('mProsesId').textContent = 'Tiket: ' + id;
-            document.getElementById('mPicNama').value = '';
-            document.getElementById('mProsesCatatan').value = '';
-            document.getElementById('mPrioritas').value = 'Middle';
+            activeTicketId = id; document.getElementById('mProsesId').textContent = 'Tiket: ' + id;
+            document.getElementById('mPicNama').value = ''; document.getElementById('mProsesCatatan').value = ''; document.getElementById('mPrioritas').value = 'Middle';
             document.getElementById('modalProses').classList.add('show');
         }
         function openSelesai(id) {
-            activeTicketId = id;
-            document.getElementById('mSelesaiId').textContent = 'Tiket: ' + id;
-            document.getElementById('mSelesaiCatatan').value = '';
-            document.getElementById('modalSelesai').classList.add('show');
+            activeTicketId = id; document.getElementById('mSelesaiId').textContent = 'Tiket: ' + id;
+            document.getElementById('mSelesaiCatatan').value = ''; document.getElementById('modalSelesai').classList.add('show');
         }
         function openReject(id) {
-            activeTicketId = id;
-            document.getElementById('mRejectId').textContent = 'Tiket: ' + id;
-            document.getElementById('mRejectCatatan').value = '';
-            document.getElementById('modalReject').classList.add('show');
+            activeTicketId = id; document.getElementById('mRejectId').textContent = 'Tiket: ' + id;
+            document.getElementById('mRejectCatatan').value = ''; document.getElementById('modalReject').classList.add('show');
         }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         async function konfirmasiProses() {
-            const pic = document.getElementById('mPicNama').value.trim();
-            if (!pic) { alert('Nama PIC wajib diisi.'); return; }
-            const prioritas = document.getElementById('mPrioritas').value;
-            const catatan = document.getElementById('mProsesCatatan').value.trim();
-            closeModal('modalProses');
-            await callAPI(() => API.updateStatus(activeTicketId, pic, prioritas, catatan), 'Tiket berhasil diproses!');
+            const pic = document.getElementById('mPicNama').value.trim(); if (!pic) { alert('Nama PIC wajib diisi.'); return; }
+            const prioritas = document.getElementById('mPrioritas').value; const catatan = document.getElementById('mProsesCatatan').value.trim();
+            doAction('updateStatus', { ticketId: activeTicketId, picNama: pic, prioritas, catatan }, 'modalProses', 'btnSaveProses', 'Tiket berhasil diproses');
         }
-
         async function konfirmasiSelesai() {
             const catatan = document.getElementById('mSelesaiCatatan').value.trim();
-            closeModal('modalSelesai');
-            await callAPI(() => API.closeKeluhan(activeTicketId, catatan), 'Tiket berhasil ditutup!');
+            doAction('closeKeluhan', { ticketId: activeTicketId, catatan }, 'modalSelesai', 'btnSaveSelesai', 'Tiket berhasil ditutup');
         }
-
         async function konfirmasiReject() {
-            const catatan = document.getElementById('mRejectCatatan').value.trim();
-            if (!catatan) { alert('Alasan penolakan wajib diisi.'); return; }
-            closeModal('modalReject');
-            await callAPI(() => API.rejectKeluhan(activeTicketId, catatan), 'Tiket berhasil ditolak.');
+            const catatan = document.getElementById('mRejectCatatan').value.trim(); if (!catatan) { alert('Alasan penolakan wajib diisi.'); return; }
+            doAction('rejectKeluhan', { ticketId: activeTicketId, catatan }, 'modalReject', 'btnSaveReject', 'Tiket berhasil ditolak');
         }
 
-        async function callAPI(fn, successMsg) {
+        async function doAction(action, data, modalId, btnId, successMsg) {
+            const btn = document.getElementById(btnId);
+            const originalText = btn.textContent;
+            btn.textContent = 'Menyimpan...'; btn.disabled = true;
+            data.token = localStorage.getItem('cmu_admin_token') || '';
             try {
-                const res = await fn();
-                if (res && res.success) { showToast(successMsg, 'ok'); fetchData(); }
-                else { showToast((res && res.message) || (res && res.error) || 'Terjadi kesalahan.', 'err'); }
-            } catch (err) { showToast('Error: ' + err.message, 'err'); }
+                const res = await callAPI(action, data);
+                if (res.success) { showToast(successMsg, 'ok'); closeModal(modalId); fetchData(); }
+                else { showToast(res.message, 'err'); }
+            } catch (e) { showToast('Error: ' + e.message, 'err'); }
+            btn.textContent = originalText; btn.disabled = false;
         }
 
-        // ── Toast ──────────────────────────────────────────────────────────
         function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.className = 'show ' + (type || 'ok');
-            clearTimeout(t._t);
-            t._t = setTimeout(() => t.className = '', 3500);
+            const t = document.getElementById('toast'); t.textContent = msg; t.className = 'show ' + (type || 'ok');
+            clearTimeout(t._timer); t._timer = setTimeout(() => t.className = '', 3500);
         }
-
-        // ── Utils ──────────────────────────────────────────────────────────
         function escHtml(s) { if (!s) return ''; return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
         function escId(s) { return (s || '').replace(/[^a-zA-Z0-9]/g, '_'); }
 
-        document.querySelectorAll('.modal-overlay').forEach(el => {
-            el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); });
-        });
+        document.querySelectorAll('.modal-overlay').forEach(el => { el.addEventListener('click', e => { if (e.target === el) el.classList.remove('show'); }); });
     </script>
 </body>
 

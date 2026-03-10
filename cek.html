@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMU - Cek Status Keluhan | GOS Indoraya</title>
+    <script src="config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <script src="config.js"></script>
-    <script src="api.js"></script>
     <style>
         *,
         *::before,
@@ -298,7 +297,6 @@
             font-weight: 700;
             padding: 3px 10px;
             border-radius: 20px;
-            margin-top: 8px;
         }
 
         .sla-ok {
@@ -352,13 +350,6 @@
             background: rgba(31, 111, 235, 0.2);
         }
 
-        .err-msg {
-            text-align: center;
-            padding: 20px;
-            color: #f85149;
-            font-size: 14px;
-        }
-
         .empty-state {
             text-align: center;
             padding: 48px 24px;
@@ -386,7 +377,7 @@
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width:600px) {
             .search-row {
                 flex-direction: column;
             }
@@ -399,7 +390,6 @@
 </head>
 
 <body>
-
     <header class="app-header">
         <div class="brand">
             <div class="brand-logo">GI</div>
@@ -430,6 +420,17 @@
     </div>
 
     <script>
+        async function callAPI(action, payload = {}) {
+            const res = await fetch(CMU_CONFIG.GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action, ...payload }),
+                redirect: 'follow'
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
         async function cekStatus() {
             const nrk = document.getElementById('inputNrk').value.trim();
             if (!nrk) { alert('Masukkan NRK atau NIK terlebih dahulu.'); return; }
@@ -437,11 +438,10 @@
             btn.disabled = true; btn.textContent = '⏳ Mencari...';
 
             try {
-                const data = await API.getMyKeluhan(nrk);
+                const data = await callAPI('getMyKeluhan', { nrkNik: nrk });
                 renderResults(data);
             } catch (err) {
-                document.getElementById('resultsCard').classList.add('show');
-                document.getElementById('ticketList').innerHTML = `<div class="err-msg">⚠ Gagal terhubung ke server: ${err.message}</div>`;
+                alert('Gagal terhubung ke server: ' + err.message);
             } finally {
                 btn.disabled = false; btn.textContent = 'Cek Status';
             }
@@ -489,7 +489,7 @@
         ${t.tglProses ? `<span>🔄 Diproses: ${t.tglProses}</span>` : ''}
         ${t.tglSelesai ? `<span>✅ Selesai: ${t.tglSelesai}</span>` : ''}
       </div>
-      ${slaHtml}
+      ${slaHtml ? `<div style="margin-top:8px">${slaHtml}</div>` : ''}
       ${fileHtml}
       ${catatanHtml}
     </div>`;
