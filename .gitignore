@@ -1,8 +1,11 @@
-# GAS files — disimpan lokal, tidak perlu di GitHub
+# Ignore GAS backup folder
 cmu GAS/
 
-# OS & Editor
+# config.js (saat ini harus di-push karena GitHub Pages butuh file ini untuk dijalankan di browser)
+
+# OS & editor files
 .DS_Store
 Thumbs.db
-desktop.ini
+*.swp
+*.bak
 .vscode/
