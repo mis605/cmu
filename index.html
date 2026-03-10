@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMU - Submit Keluhan | GOS Indoraya</title>
+    <script src="config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <script src="config.js"></script>
-    <script src="api.js"></script>
     <style>
         *,
         *::before,
@@ -26,6 +25,7 @@
             --text: #e6edf3;
             --muted: #7d8590;
             --accent: #238636;
+            --accent-hover: #2ea043;
             --danger: #da3633;
             --radius: 12px;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
@@ -87,6 +87,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .nav-link:hover {
@@ -179,6 +180,7 @@
         input[type="text"],
         input[type="tel"],
         input[type="email"],
+        input[type="file"],
         textarea,
         select {
             background: var(--bg3);
@@ -274,22 +276,6 @@
             color: #f85149;
         }
 
-        .progress-bar {
-            height: 3px;
-            background: var(--bg3);
-            border-radius: 2px;
-            margin-top: 6px;
-            display: none;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-            transition: width 0.3s;
-            width: 0%;
-        }
-
         .btn-submit {
             width: 100%;
             padding: 14px;
@@ -301,6 +287,7 @@
             border-radius: 10px;
             cursor: pointer;
             margin-top: 24px;
+            letter-spacing: 0.02em;
             transition: all 0.2s;
             box-shadow: 0 4px 14px rgba(35, 134, 54, 0.4);
         }
@@ -308,6 +295,10 @@
         .btn-submit:hover {
             background: linear-gradient(135deg, #2ea043, #238636);
             transform: translateY(-1px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
         }
 
         .btn-submit:disabled {
@@ -414,7 +405,7 @@
                 <small>GOS Indoraya — Complaint Management Unit</small>
             </div>
         </div>
-        <a class="nav-link" href="cek.html">🔍 Cek Status Keluhan</a>
+        <a href="cek.html" class="nav-link">🔍 Cek Status Keluhan</a>
     </header>
 
     <div class="card">
@@ -491,12 +482,9 @@
                             onchange="onFileSelected(this)">
                         <div class="up-icon">📎</div>
                         <div class="up-label"><strong>Klik atau drag file</strong> ke sini</div>
-                        <div class="up-hint">PDF, Word, Excel, JPG, PNG — maks. 10 MB</div>
+                        <div class="up-hint">PDF, Word, Excel, JPG, PNG — maks. 5 MB</div>
                     </div>
                     <div id="fileStatus"></div>
-                    <div class="progress-bar" id="progressBar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
                 </div>
             </div>
 
@@ -507,13 +495,24 @@
             <div class="ticket-id-box" id="ticketBox">
                 <div class="label">Pengajuan Anda berhasil tercatat. Simpan ID Tiket ini:</div>
                 <div class="tid" id="ticketIdDisplay"></div>
-                <div class="hint">Gunakan ID ini di halaman <a href="cek.html" style="color:#3fb950">Cek Status</a>
-                    untuk memantau progres</div>
+                <div class="hint">Gunakan ID ini untuk mengecek status pengajuan Anda</div>
             </div>
         </div>
     </div>
 
     <script>
+        // API Helper untuk melakukan call fetch ke GAS
+        async function callAPI(action, payload = {}) {
+            const res = await fetch(CMU_CONFIG.GAS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action, ...payload }),
+                redirect: 'follow'
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
         function checkSubKategori(sel) {
             const lain = document.getElementById('subKategoriLain');
             lain.style.display = sel.value === 'Lainnya' ? 'block' : 'none';
@@ -522,69 +521,36 @@
 
         function getSubKategoriValue() {
             const sel = document.getElementById('subKategori');
-            return sel.value === 'Lainnya'
-                ? document.getElementById('subKategoriLain').value.trim()
-                : sel.value;
+            if (sel.value === 'Lainnya') return document.getElementById('subKategoriLain').value.trim();
+            return sel.value;
         }
 
+        // ── File Upload ──
         function onFileSelected(input) {
             const file = input.files[0];
             if (!file) return;
-            if (file.size > 10 * 1024 * 1024) {
-                setFileStatus('⚠ File terlalu besar (maks. 10 MB).', 'err');
-                input.value = ''; return;
+            const maxSize = 5 * 1024 * 1024; // 5 MB
+            if (file.size > maxSize) {
+                setFileStatus('⚠ File terlalu besar (maks. 5 MB).', 'err');
+                input.value = '';
+                return;
             }
             setFileStatus('📄 ' + file.name + ' siap diupload saat submit.', 'ok');
         }
 
         function setFileStatus(msg, cls) {
             const el = document.getElementById('fileStatus');
-            el.textContent = msg; el.className = cls || '';
+            el.textContent = msg;
+            el.className = cls || '';
         }
 
-        async function doUploadFile() {
-            const input = document.getElementById('fileInput');
-            if (!input.files || !input.files[0]) return '';
-            const file = input.files[0];
-
-            document.getElementById('progressBar').style.display = 'block';
-            const fill = document.getElementById('progressFill');
-            setFileStatus('⏳ Mengupload dokumen...', '');
-
-            let prog = 0;
-            const timer = setInterval(() => { prog = Math.min(prog + 15, 85); fill.style.width = prog + '%'; }, 200);
-
-            return new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onload = async e => {
-                    const base64 = e.target.result.split(',')[1];
-                    try {
-                        const res = await API.uploadFile(base64, file.name, file.type);
-                        clearInterval(timer); fill.style.width = '100%';
-                        if (res.success) {
-                            setFileStatus('✅ Dokumen berhasil diupload: ' + file.name, 'ok');
-                            resolve(res.url);
-                        } else {
-                            setFileStatus('⚠ Upload gagal: ' + (res.message || ''), 'err');
-                            resolve('');
-                        }
-                    } catch (err) {
-                        clearInterval(timer);
-                        setFileStatus('⚠ Error upload: ' + err.message, 'err');
-                        resolve('');
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
+        // ── Submit ──
         async function submitForm() {
             const btn = document.getElementById('btnSubmit');
             document.getElementById('alertError').className = 'alert alert-error';
             document.getElementById('alertSuccess').className = 'alert alert-success';
             document.getElementById('ticketBox').className = 'ticket-id-box';
 
-            const subKat = getSubKategoriValue();
             const data = {
                 nrk_nik: document.getElementById('nrk_nik').value.trim(),
                 nama: document.getElementById('nama').value.trim(),
@@ -593,7 +559,7 @@
                 nohp: document.getElementById('nohp').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 kategori: document.getElementById('kategori').value,
-                subKategori: subKat,
+                subKategori: getSubKategoriValue(),
                 deskripsi: document.getElementById('deskripsi').value.trim(),
                 fileUrl: ''
             };
@@ -607,18 +573,38 @@
             if (!data.subKategori) return showError('Sub kategori wajib dipilih / diisi.');
             if (!data.deskripsi) return showError('Uraian lengkap wajib diisi.');
 
-            btn.disabled = true; btn.textContent = '⏳ Mengirim...';
+            btn.disabled = true;
+            btn.textContent = '⏳ Mengirim...';
 
-            // Upload file terlebih dahulu jika ada
-            const fileInput = document.getElementById('fileInput');
-            if (fileInput.files && fileInput.files[0]) {
-                btn.textContent = '⏳ Mengupload lampiran...';
-                data.fileUrl = await doUploadFile();
-            }
-
-            btn.textContent = '⏳ Menyimpan data...';
             try {
-                const res = await API.submitKeluhan(data);
+                // Proses upload file jika ada
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput.files && fileInput.files[0]) {
+                    setFileStatus('⏳ Sedang mengupload file...', '');
+                    const file = fileInput.files[0];
+                    const base64Content = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = e => resolve(e.target.result.split(',')[1]);
+                        reader.readAsDataURL(file);
+                    });
+
+                    const uploadRes = await callAPI('uploadFileToDrive', {
+                        base64Data: base64Content,
+                        fileName: file.name,
+                        mimeType: file.type
+                    });
+
+                    if (uploadRes.success) {
+                        data.fileUrl = uploadRes.url;
+                        setFileStatus('✅ File berhasil diupload.', 'ok');
+                    } else {
+                        throw new Error('Upload file gagal: ' + uploadRes.message);
+                    }
+                }
+
+                btn.textContent = '⏳ Menyimpan data tiket...';
+                const res = await callAPI('submitKeluhan', { data });
+
                 btn.disabled = false; btn.textContent = 'Kirim Pengajuan →';
                 if (res.success) {
                     document.getElementById('alertSuccess').classList.add('show');
@@ -626,18 +612,20 @@
                     document.getElementById('ticketBox').classList.add('show');
                     document.getElementById('ticketIdDisplay').textContent = res.ticketId;
                     btn.style.display = 'none';
+                    document.getElementById('fileStatus').textContent = '';
                 } else {
-                    showError(res.message || 'Terjadi kesalahan.');
+                    showError(res.message);
                 }
             } catch (err) {
                 btn.disabled = false; btn.textContent = 'Kirim Pengajuan →';
-                showError('Tidak dapat terhubung ke server: ' + err.message);
+                showError('Terjadi kesalahan: ' + err.message);
             }
         }
 
         function showError(msg) {
             const el = document.getElementById('alertError');
-            el.textContent = '⚠ ' + msg; el.classList.add('show');
+            el.textContent = '⚠ ' + msg;
+            el.classList.add('show');
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     </script>
