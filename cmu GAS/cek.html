@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMU - Cek Status Keluhan | GOS Indoraya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d1117;
+            --bg2: #161b22;
+            --bg3: #21262d;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #7d8590;
+            --accent: #1f6feb;
+            --radius: 12px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px 16px 48px;
+        }
+
+        .app-header {
+            max-width: 900px;
+            margin: 0 auto 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, #1f6feb, #8957e5);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .brand-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .brand-text small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .nav-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            border-color: #7d8590;
+            background: var(--bg3);
+        }
+
+        .search-card {
+            max-width: 900px;
+            margin: 0 auto 24px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .search-card h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .search-card p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn-search {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1f6feb, #1158c7);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.35);
+        }
+
+        .btn-search:hover {
+            background: linear-gradient(135deg, #388bfd, #1f6feb);
+        }
+
+        .btn-search:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results-card {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .results-card.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .results-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(31, 111, 235, 0.05);
+        }
+
+        .results-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .results-badge {
+            background: rgba(31, 111, 235, 0.15);
+            color: #58a6ff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .ticket-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ticket-item {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            transition: border-color 0.2s;
+        }
+
+        .ticket-item:hover {
+            border-color: #7d8590;
+        }
+
+        .ticket-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ticket-id-label {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #58a6ff;
+            font-family: monospace;
+        }
+
+        .ticket-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 3px;
+            color: var(--muted);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        .s-open {
+            background: rgba(210, 153, 34, 0.15);
+            color: #e3b341;
+            border: 1px solid rgba(210, 153, 34, 0.35);
+        }
+
+        .s-progress {
+            background: rgba(31, 111, 235, 0.15);
+            color: #58a6ff;
+            border: 1px solid rgba(31, 111, 235, 0.35);
+        }
+
+        .s-closed {
+            background: rgba(35, 134, 54, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(35, 134, 54, 0.35);
+        }
+
+        .s-rejected {
+            background: rgba(218, 54, 51, 0.15);
+            color: #f85149;
+            border: 1px solid rgba(218, 54, 51, 0.35);
+        }
+
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        .sla-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .sla-ok {
+            background: rgba(35, 134, 54, 0.15);
+            color: #3fb950;
+        }
+
+        .sla-warning {
+            background: rgba(210, 153, 34, 0.15);
+            color: #e3b341;
+        }
+
+        .sla-danger {
+            background: rgba(218, 54, 51, 0.15);
+            color: #f85149;
+        }
+
+        .ticket-catatan {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+            color: #c9d1d9;
+        }
+
+        .ticket-catatan .label-cat {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+
+        .file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #58a6ff;
+            text-decoration: none;
+            margin-top: 8px;
+            padding: 4px 10px;
+            border: 1px solid rgba(31, 111, 235, 0.3);
+            border-radius: 6px;
+            background: rgba(31, 111, 235, 0.08);
+        }
+
+        .file-link:hover {
+            background: rgba(31, 111, 235, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--muted);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .search-row {
+                flex-direction: column;
+            }
+
+            .ticket-top {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-logo">GI</div>
+            <div class="brand-text">
+                <h1>Cek Status Pengajuan</h1>
+                <small>GOS Indoraya — Complaint Management Unit</small>
+            </div>
+        </div>
+        <a class="nav-link" onclick="goToSubmit()">➕ Buat Pengajuan Baru</a>
+    </header>
+
+    <div class="search-card">
+        <h2>🔍 Lacak Pengajuan Saya</h2>
+        <p>Masukkan NRK atau NIK KTP Anda untuk melihat semua pengajuan yang pernah dikirim</p>
+        <div class="search-row">
+            <input type="text" class="search-input" id="inputNrk" placeholder="Masukkan NRK atau NIK KTP Anda..."
+                onkeydown="if(event.key==='Enter') cekStatus()">
+            <button class="btn-search" id="btnCek" onclick="cekStatus()">Cek Status</button>
+        </div>
+    </div>
+
+    <div class="results-card" id="resultsCard">
+        <div class="results-header">
+            <h3 id="resultsTitle">Hasil Pencarian</h3>
+            <span class="results-badge" id="resultsBadge">0 tiket</span>
+        </div>
+        <div class="ticket-list" id="ticketList"></div>
+    </div>
+
+    <script>
+        function goToSubmit() {
+            if (typeof google !== 'undefined') {
+                google.script.run.withSuccessHandler(u => window.open(u + '?page=index', '_top')).getServiceUrl();
+            }
+        }
+
+        function cekStatus() {
+            const nrk = document.getElementById('inputNrk').value.trim();
+            if (!nrk) { alert('Masukkan NRK atau NIK terlebih dahulu.'); return; }
+            const btn = document.getElementById('btnCek');
+            btn.disabled = true; btn.textContent = '⏳ Mencari...';
+
+            if (typeof google !== 'undefined') {
+                google.script.run
+                    .withSuccessHandler(renderResults)
+                    .withFailureHandler(err => { btn.disabled = false; btn.textContent = 'Cek Status'; alert('Error: ' + err.message); })
+                    .getMyKeluhan(nrk);
+            } else {
+                setTimeout(() => {
+                    renderResults([
+                        { id: 'CMU-20260310-0001', tglSubmit: '10 Mar 2026 09:15', nama: 'Budi Santoso', kategori: 'Keluhan', subKategori: 'Compensation & Benefit', deskripsi: 'Gaji bulan Februari 2026 belum masuk ke rekening.', status: 'In Progress', prioritas: 'High', picNama: 'Rina HR', tglProses: '10 Mar 2026 11:00', tglSelesai: '', sla: 0, catatan: 'Sedang diproses tim HR.', fileUrl: 'https://drive.google.com/example' },
+                        { id: 'CMU-20260302-0005', tglSubmit: '02 Mar 2026 14:30', nama: 'Budi Santoso', kategori: 'Permintaan', subKategori: 'PKWT', deskripsi: 'Mohon salinan PKWT saya untuk tahun 2026.', status: 'Closed', prioritas: 'Low', picNama: 'Rina Admin', tglProses: '03 Mar 2026 10:00', tglSelesai: '05 Mar 2026 15:00', sla: 2, catatan: 'PKWT sudah dikirim ke email.', fileUrl: '' }
+                    ]);
+                    btn.disabled = false; btn.textContent = 'Cek Status';
+                }, 1000);
+            }
+        }
+
+        function renderResults(data) {
+            const card = document.getElementById('resultsCard');
+            const list = document.getElementById('ticketList');
+            const title = document.getElementById('resultsTitle');
+            const badge = document.getElementById('resultsBadge');
+            document.getElementById('btnCek').disabled = false;
+            document.getElementById('btnCek').textContent = 'Cek Status';
+
+            card.classList.add('show');
+            badge.textContent = (data ? data.length : 0) + ' tiket';
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<div class="empty-state"><div class="icon">🔎</div><p>Tidak ditemukan pengajuan dengan NRK/NIK tersebut.<br>Pastikan nomor yang dimasukkan sudah benar.</p></div>`;
+                title.textContent = 'Tidak Ada Data';
+                return;
+            }
+
+            title.textContent = 'Riwayat Pengajuan — ' + (data[0].nama || '');
+            list.innerHTML = data.map(t => buildCard(t)).join('');
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function buildCard(t) {
+            const statusClass = { 'open': 's-open', 'in progress': 's-progress', 'closed': 's-closed', 'rejected': 's-rejected' }[(t.status || '').toLowerCase()] || 's-open';
+            let slaHtml = '';
+            if (t.tglProses) {
+                const sla = parseInt(t.sla) || 0;
+                const isClosed = (t.status || '').toLowerCase() === 'closed';
+                const cls = isClosed ? (sla <= 3 ? 'sla-ok' : 'sla-danger') : (sla <= 3 ? 'sla-ok' : sla <= 5 ? 'sla-warning' : 'sla-danger');
+                slaHtml = `<span class="sla-chip ${cls}">⏱ SLA: ${sla} hari${isClosed ? ' (selesai)' : ' (berjalan)'}</span>`;
+            }
+            const fileHtml = t.fileUrl ? `<a href="${t.fileUrl}" target="_blank" class="file-link">📎 Lihat Lampiran</a>` : '';
+            const catatanHtml = t.catatan ? `<div class="ticket-catatan"><div class="label-cat">Catatan Admin</div>${escHtml(t.catatan)}</div>` : '';
+
+            return `<div class="ticket-item">
+      <div class="ticket-top">
+        <div>
+          <div class="ticket-id-label">${t.id}</div>
+          <div class="ticket-title">📂 ${escHtml(t.kategori)} — <span style="color:#c9d1d9">${escHtml(t.subKategori)}</span></div>
+        </div>
+        <span class="status-badge ${statusClass}">${t.status || 'Open'}</span>
+      </div>
+      <div class="ticket-meta">
+        <span>📅 Submit: ${t.tglSubmit}</span>
+        ${t.prioritas ? `<span>🔖 Prioritas: ${t.prioritas}</span>` : ''}
+        ${t.picNama ? `<span>👤 PIC: ${escHtml(t.picNama)}</span>` : ''}
+        ${t.tglProses ? `<span>🔄 Diproses: ${t.tglProses}</span>` : ''}
+        ${t.tglSelesai ? `<span>✅ Selesai: ${t.tglSelesai}</span>` : ''}
+      </div>
+      ${slaHtml ? `<div style="margin-top:8px">${slaHtml}</div>` : ''}
+      ${fileHtml}
+      ${catatanHtml}
+    </div>`;
+        }
+
+        function escHtml(s) {
+            if (!s) return '';
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+
+</html>

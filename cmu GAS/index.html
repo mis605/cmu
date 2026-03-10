@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMU - Submit Keluhan | GOS Indoraya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --accent: #238636;
+      --accent-hover: #2ea043;
+      --danger: #da3633;
+      --radius: 12px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    /* Header */
+    .app-header {
+      max-width: 720px;
+      margin: 0 auto 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      background: linear-gradient(135deg, #238636, #1f6feb);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .brand-text h1 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand-text small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .nav-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      border-color: #7d8590;
+      background: var(--bg3);
+    }
+
+    /* Card */
+    .card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(35, 134, 54, 0.08), rgba(31, 111, 235, 0.08));
+    }
+
+    .card-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .card-header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .card-body {
+      padding: 28px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 24px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #c9d1d9;
+    }
+
+    label .req {
+      color: var(--danger);
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="file"],
+    textarea,
+    select {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(35, 134, 54, 0.2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.6;
+    }
+
+    select option {
+      background: var(--bg2);
+    }
+
+    /* Sub Kategori lainnya */
+    #subKategoriLain {
+      display: none;
+      margin-top: 8px;
+    }
+
+    /* File Upload */
+    .file-upload-wrap {
+      position: relative;
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .file-upload-wrap:hover {
+      border-color: var(--accent);
+      background: rgba(35, 134, 54, 0.05);
+    }
+
+    .file-upload-wrap input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+    }
+
+    .file-upload-wrap .up-icon {
+      font-size: 26px;
+      margin-bottom: 6px;
+    }
+
+    .file-upload-wrap .up-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .file-upload-wrap .up-label strong {
+      color: var(--text);
+    }
+
+    .file-upload-wrap .up-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    #fileStatus {
+      font-size: 12px;
+      margin-top: 8px;
+      color: var(--muted);
+      min-height: 16px;
+    }
+
+    #fileStatus.ok {
+      color: #3fb950;
+    }
+
+    #fileStatus.err {
+      color: #f85149;
+    }
+
+    .progress-bar {
+      height: 3px;
+      background: var(--bg3);
+      border-radius: 2px;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #238636, #1a6f2e);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 24px;
+      letter-spacing: 0.02em;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(35, 134, 54, 0.4);
+    }
+
+    .btn-submit:hover {
+      background: linear-gradient(135deg, #2ea043, #238636);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Alert */
+    .alert {
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 20px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .alert-success {
+      background: rgba(35, 134, 54, 0.15);
+      border: 1px solid rgba(35, 134, 54, 0.4);
+      color: #3fb950;
+    }
+
+    .alert-error {
+      background: rgba(218, 54, 51, 0.15);
+      border: 1px solid rgba(218, 54, 51, 0.4);
+      color: #f85149;
+    }
+
+    .ticket-id-box {
+      background: var(--bg3);
+      border: 1px dashed var(--accent);
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .ticket-id-box.show {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .ticket-id-box .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .ticket-id-box .tid {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #3fb950;
+    }
+
+    .ticket-id-box .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full {
+        grid-column: 1;
+      }
+
+      .card-body {
+        padding: 20px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">GI</div>
+      <div class="brand-text">
+        <h1>CMU Portal</h1>
+        <small>GOS Indoraya — Complaint Management Unit</small>
+      </div>
+    </div>
+    <a class="nav-link" onclick="goToCek()">🔍 Cek Status Keluhan</a>
+  </header>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📋 Form Pengajuan Keluhan / Permintaan</h2>
+      <p>Sampaikan keluhan, pertanyaan, atau permintaan Anda terkait pekerjaan dan administrasi</p>
+    </div>
+    <div class="card-body">
+
+      <div class="section-title">Identitas Karyawan</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nrk_nik">NRK / NIK KTP <span class="req">*</span></label>
+          <input type="text" id="nrk_nik" placeholder="Masukkan NRK atau NIK KTP">
+        </div>
+        <div class="form-group">
+          <label for="nama">Nama Lengkap <span class="req">*</span></label>
+          <input type="text" id="nama" placeholder="Nama sesuai identitas">
+        </div>
+        <div class="form-group">
+          <label for="klien">Nama Klien / Penempatan <span class="req">*</span></label>
+          <input type="text" id="klien" placeholder="Nama perusahaan klien tempat bertugas">
+        </div>
+        <div class="form-group">
+          <label for="jabatan">Jabatan</label>
+          <input type="text" id="jabatan" placeholder="Contoh: Security, Admin, Operator">
+        </div>
+        <div class="form-group">
+          <label for="nohp">No HP / WhatsApp <span class="req">*</span></label>
+          <input type="tel" id="nohp" placeholder="Nomor aktif untuk dihubungi">
+        </div>
+        <div class="form-group">
+          <label for="email">Email Aktif <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="email@contoh.com">
+        </div>
+      </div>
+
+      <div class="section-title">Detail Pengajuan</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="kategori">Jenis Pengajuan <span class="req">*</span></label>
+          <select id="kategori">
+            <option value="">-- Pilih Jenis --</option>
+            <option value="Pertanyaan">Pertanyaan</option>
+            <option value="Permintaan">Permintaan</option>
+            <option value="Keluhan">Keluhan</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="subKategori">Sub Kategori <span class="req">*</span></label>
+          <select id="subKategori" onchange="checkSubKategori(this)">
+            <option value="">-- Pilih Sub Kategori --</option>
+            <option value="Compensation & Benefit">Compensation &amp; Benefit</option>
+            <option value="BPJS Kesehatan">BPJS Kesehatan</option>
+            <option value="BPJS Ketenagakerjaan">BPJS Ketenagakerjaan</option>
+            <option value="Sistem GAUL (Slip Gaji & SPT)">Sistem GAUL (Slip Gaji &amp; SPT)</option>
+            <option value="PKWT">PKWT</option>
+            <option value="Peralatan Kerja">Peralatan Kerja</option>
+            <option value="Permintaan Surat">Permintaan Surat</option>
+            <option value="Absensi">Absensi</option>
+            <option value="Lainnya">Lainnya (ketik sendiri)</option>
+          </select>
+          <input type="text" id="subKategoriLain" placeholder="Tulis sub kategori Anda...">
+        </div>
+        <div class="form-group full">
+          <label for="deskripsi">Uraian Lengkap <span class="req">*</span></label>
+          <textarea id="deskripsi"
+            placeholder="Jelaskan secara detail: apa yang ingin Anda sampaikan, kapan terjadi, dan dampaknya..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Lampiran Dokumen <span style="color:var(--muted);font-weight:400">(opsional)</span></label>
+          <div class="file-upload-wrap">
+            <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+              onchange="onFileSelected(this)">
+            <div class="up-icon">📎</div>
+            <div class="up-label"><strong>Klik atau drag file</strong> ke sini</div>
+            <div class="up-hint">PDF, Word, Excel, JPG, PNG — maks. 10 MB</div>
+          </div>
+          <div id="fileStatus"></div>
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btnSubmit" onclick="submitForm()">
+        Kirim Pengajuan →
+      </button>
+
+      <div class="alert alert-error" id="alertError"></div>
+      <div class="alert alert-success" id="alertSuccess"></div>
+      <div class="ticket-id-box" id="ticketBox">
+        <div class="label">Pengajuan Anda berhasil tercatat. Simpan ID Tiket ini:</div>
+        <div class="tid" id="ticketIdDisplay"></div>
+        <div class="hint">Gunakan ID ini untuk mengecek status pengajuan Anda</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let uploadedFileUrl = '';
+
+    function goToCek() {
+      if (typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(u => window.open(u + '?page=cek', '_top')).getServiceUrl();
+      } else {
+        alert('Tersedia saat dijalankan di Google Apps Script.');
+      }
+    }
+
+    function checkSubKategori(sel) {
+      const lain = document.getElementById('subKategoriLain');
+      lain.style.display = sel.value === 'Lainnya' ? 'block' : 'none';
+      if (sel.value !== 'Lainnya') lain.value = '';
+    }
+
+    function getSubKategoriValue() {
+      const sel = document.getElementById('subKategori');
+      if (sel.value === 'Lainnya') {
+        return document.getElementById('subKategoriLain').value.trim();
+      }
+      return sel.value;
+    }
+
+    // ── File Upload ──
+    function onFileSelected(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const maxSize = 10 * 1024 * 1024; // 10 MB
+      if (file.size > maxSize) {
+        setFileStatus('⚠ File terlalu besar (maks. 10 MB).', 'err');
+        input.value = '';
+        return;
+      }
+      setFileStatus('📄 ' + file.name + ' siap diupload saat submit.', 'ok');
+    }
+
+    function setFileStatus(msg, cls) {
+      const el = document.getElementById('fileStatus');
+      el.textContent = msg;
+      el.className = cls || '';
+    }
+
+    function uploadFile() {
+      return new Promise((resolve) => {
+        const input = document.getElementById('fileInput');
+        if (!input.files || !input.files[0]) { resolve(''); return; }
+        const file = input.files[0];
+
+        const bar = document.getElementById('progressBar');
+        const fill = document.getElementById('progressFill');
+        bar.style.display = 'block';
+        setFileStatus('⏳ Mengupload dokumen...', '');
+
+        // Simulate progress UI
+        let prog = 0;
+        const timer = setInterval(() => {
+          prog = Math.min(prog + 15, 85);
+          fill.style.width = prog + '%';
+        }, 200);
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const base64 = e.target.result.split(',')[1];
+          if (typeof google !== 'undefined') {
+            google.script.run
+              .withSuccessHandler(function (res) {
+                clearInterval(timer);
+                fill.style.width = '100%';
+                if (res.success) {
+                  setFileStatus('✅ Dokumen berhasil diupload: ' + file.name, 'ok');
+                  resolve(res.url);
+                } else {
+                  setFileStatus('⚠ Upload gagal: ' + res.message, 'err');
+                  resolve('');
+                }
+              })
+              .withFailureHandler(function (err) {
+                clearInterval(timer);
+                setFileStatus('⚠ Upload error: ' + err.message, 'err');
+                resolve('');
+              })
+              .uploadFileToDrive(base64, file.name, file.type);
+          } else {
+            // Preview mode
+            clearInterval(timer);
+            fill.style.width = '100%';
+            setFileStatus('✅ Preview: ' + file.name + ' (simulasi upload)', 'ok');
+            resolve('https://drive.google.com/preview');
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ── Submit ──
+    async function submitForm() {
+      const btn = document.getElementById('btnSubmit');
+      document.getElementById('alertError').className = 'alert alert-error';
+      document.getElementById('alertSuccess').className = 'alert alert-success';
+      document.getElementById('ticketBox').className = 'ticket-id-box';
+
+      const subKat = getSubKategoriValue();
+      const data = {
+        nrk_nik: document.getElementById('nrk_nik').value.trim(),
+        nama: document.getElementById('nama').value.trim(),
+        klien: document.getElementById('klien').value.trim(),
+        jabatan: document.getElementById('jabatan').value.trim(),
+        nohp: document.getElementById('nohp').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        kategori: document.getElementById('kategori').value,
+        subKategori: subKat,
+        deskripsi: document.getElementById('deskripsi').value.trim(),
+        fileUrl: ''
+      };
+
+      if (!data.nrk_nik) return showError('NRK / NIK wajib diisi.');
+      if (!data.nama) return showError('Nama lengkap wajib diisi.');
+      if (!data.klien) return showError('Nama klien / penempatan wajib diisi.');
+      if (!data.nohp) return showError('No HP / WhatsApp wajib diisi.');
+      if (!data.email) return showError('Email aktif wajib diisi.');
+      if (!data.kategori) return showError('Jenis pengajuan wajib dipilih.');
+      if (!data.subKategori) return showError('Sub kategori wajib dipilih / diisi.');
+      if (!data.deskripsi) return showError('Uraian lengkap wajib diisi.');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Mengirim...';
+
+      // Upload file dulu jika ada
+      const fileInput = document.getElementById('fileInput');
+      if (fileInput.files && fileInput.files[0]) {
+        data.fileUrl = await uploadFile();
+      }
+
+      btn.textContent = '⏳ Menyimpan data...';
+
+      if (typeof google !== 'undefined') {
+        google.script.run
+          .withSuccessHandler(function (res) {
+            btn.disabled = false; btn.textContent = 'Kirim Pengajuan →';
+            if (res.success) {
+              document.getElementById('alertSuccess').classList.add('show');
+              document.getElementById('alertSuccess').textContent = res.message;
+              document.getElementById('ticketBox').classList.add('show');
+              document.getElementById('ticketIdDisplay').textContent = res.ticketId;
+              btn.style.display = 'none';
+            } else {
+              showError(res.message);
+            }
+          })
+          .withFailureHandler(function (err) {
+            btn.disabled = false; btn.textContent = 'Kirim Pengajuan →';
+            showError('Terjadi kesalahan: ' + err.message);
+          })
+          .submitKeluhan(data);
+      } else {
+        setTimeout(function () {
+          btn.disabled = false; btn.textContent = 'Kirim Pengajuan →';
+          document.getElementById('alertSuccess').classList.add('show');
+          document.getElementById('alertSuccess').textContent = 'Preview mode: Pengajuan berhasil (simulasi).';
+          document.getElementById('ticketBox').classList.add('show');
+          document.getElementById('ticketIdDisplay').textContent = 'CMU-20260310-0001';
+          btn.style.display = 'none';
+        }, 1200);
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('alertError');
+      el.textContent = '⚠ ' + msg;
+      el.classList.add('show');
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+</body>
+
+</html>
