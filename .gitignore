@@ -1,0 +1,8 @@
+# GAS files — disimpan lokal, tidak perlu di GitHub
+cmu GAS/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
